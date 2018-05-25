@@ -1,5 +1,7 @@
 #!/bin/bash
 
+cd ${0%/*}
+
 getopt --test > /dev/null
 if [[ $? -ne 4 ]]; then
     echo "I’m sorry, `getopt --test` failed in this environment." >&2
@@ -24,6 +26,7 @@ eval set -- "$PARSED"
 # default values
 prefix=/usr/local
 action=install
+gen_man=1
 
 # now enjoy the options in order and nicely split until we see --
 while true; do
@@ -31,6 +34,10 @@ while true; do
         --prefix)
             prefix="$2"
             shift 2
+            ;;
+        --skip-man)
+            gen_man=0
+            shift
             ;;
         -u|--uninstall)
             action=uninstall
@@ -53,12 +60,21 @@ if [ ! -d $prefix ]; then
 fi
 
 if [ "$action" == "install" ]; then
-    echo Installing...
+    if [[ $gen_man -gt 0 ]]; then
+        echo "Generating man page..."
+        pandoc -s -t man doc/man-page.md -o latex-gnuplot.1
+    fi
+    echo "Installing..."
     mkdir -vp ${prefix}/bin
     install -v --mode=755 latex-gnuplot.sh ${prefix}/bin/latex-gnuplot
+    if [ -f latex-gnuplot.1 ]; then
+        install -v latex-gnuplot.1 ${prefix}/share/man/man1/latex-gnuplot.1
+        mandb
+    fi
 fi
 
 if [ "$action" == "uninstall" ]; then
-    echo Uninstalling...
+    echo "Uninstalling..."
     rm -vf ${prefix}/bin/latex-gnuplot
+    rm -vf ${prefix}/share/man/man1/latex-gnuplot.1
 fi
