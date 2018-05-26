@@ -1,3 +1,9 @@
+---
+title: 'LATEX-GNUPLOT'
+section: 1
+header: 'LaTeX-gnuplot User Manual'
+---
+
 # NAME
 
 latex-gnuplot - render gnuplots from LaTeX terminals to self-contained figures
@@ -91,6 +97,10 @@ Templates can be further customized by replacing the token `THEPREAMBLE` with
 the contents of a separate `.tex` file via the `--preamble` flag. Lastly, LaTeX
 commands can be injected directly into the LaTeX source using the `--inject`
 flag and will replace the token `THEINJECTION`.
+
+# AUTHORS
+
+Copyright (C) 2018  Jonas Greitemann
 
 # SEE ALSO
 
