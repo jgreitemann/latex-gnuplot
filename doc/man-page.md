@@ -37,6 +37,9 @@ products.
 
 # OPTIONS
 
+-h, \--help
+:   Display a help message.
+
 -e, \--eps
 :   Specify `latex` + `dvips` as typeset commands. Resulting output file will be
     in EPS format. Supercedes any prior format options.
@@ -46,7 +49,7 @@ products.
     in PDF format. Supercedes any prior format options.
 
 \--eps-from-pdf
-:   Specify `pdflatex` as typeset commands, but convert subsequently with
+:   Specify `pdflatex` as typeset command, but convert subsequently with
     `pdftops`. This can yield better results then using the `--eps` option since
     `dvips` has to guess the bounding box from the DVI file. Resulting output
     file will be in EPS format. Supercedes any prior format options.
@@ -63,7 +66,7 @@ products.
     in axis / key labels, etc.
 
 -i *INJECTION*, \--inject *INJECTION*
-:   Specify (few) LaTeX commands to the put immediately before `\input{...}` is
+:   Specify (few) LaTeX commands to put immediately before `\input{...}` is
     invoked. More precisely, the string `THEINJECTION` in the template file will
     be replaced. Useful for changing font size, color, etc.
 

@@ -1,13 +1,43 @@
 #!/bin/bash
 
+usage () {
+    echo "$0 [*options*] *input-gnuplot-file* [*data-file*]..."
+}
+
+show_usage () {
+    echo "Usage: $(usage)"
+    echo "Try '$0 --help' for more information."
+}
+
+show_help () {
+    echo "
+latex-gnuplot -- render gnuplots from LaTeX terminals to self-contained figures
+
+USAGE:
+    $(usage)
+
+OPTIONS:
+    -e, --eps                     Specify \`latex\` + \`dvips\` as typeset commands
+    -p, --pdf                     Specify \`pdflatex\` as typeset command
+        --eps-from-pdf            Specify \`pdflatex\` as typeset command, but
+                                  convert subsequently with \`pdftops\` to EPS
+    -t, --template TEMPLATE       Specify the name of an installed template file
+    -P, --preamble PREAMBLE-FILE  Specify path to an optional preamble file
+    -i, --inject INJECTION        Specify LaTeX commands to put immediately
+                                  before the gnuplot figure is included
+        --no-cleanup              Do not delete temporary working directory
+    -h, --help                    Display this help message
+"
+}
+
 getopt --test > /dev/null
 if [[ $? -ne 4 ]]; then
     echo "I’m sorry, `getopt --test` failed in this environment." >&2
     exit 1
 fi
 
-OPTIONS=ept:P:i:
-LONGOPTIONS=eps,pdf,eps-from-pdf,template:,preamble:,inject:,no-cleanup
+OPTIONS=ept:P:i:h
+LONGOPTIONS=eps,pdf,eps-from-pdf,template:,preamble:,inject:,no-cleanup,help
 
 # -temporarily store output to be able to check for errors
 # -e.g. use “--options” parameter by name to activate quoting/enhanced mode
@@ -56,6 +86,10 @@ while true; do
         --no-cleanup)
             nc=1
             shift
+            ;;
+        -h|--help)
+            show_help
+            exit 0
             ;;
         --)
             shift
