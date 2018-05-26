@@ -108,6 +108,23 @@ the contents of a separate `.tex` file via the `--preamble` flag. Lastly, LaTeX
 commands can be injected directly into the LaTeX source using the `--inject`
 flag and will replace the token `THEINJECTION`.
 
+License
+-------
+
+Copyright (C) 2018  Jonas Greitemann
+
+This program is free software: you can redistribute it and/or modify it under
+the terms of the GNU General Public License as published by the Free Software
+Foundation, either version 3 of the License, or (at your option) any later
+version.
+
+This program is distributed in the hope that it will be useful, but WITHOUT ANY
+WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+PARTICULAR PURPOSE. See the GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License along with
+this program. If not, see <http://www.gnu.org/licenses/>.
+
 [1]: example/photo_luminescense.gp
 [2]: http://www.gnuplotting.org/label-size-in-epslatex-terminal/
 [3]: doc/photo_luminescense.pdf
