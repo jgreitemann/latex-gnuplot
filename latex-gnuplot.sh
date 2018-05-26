@@ -15,6 +15,8 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+PREFIX=/usr/local/
+
 usage () {
     echo "$0 [*options*] *input-gnuplot-file* [*data-file*]..."
 }
@@ -126,15 +128,25 @@ done
 
 template="${template%.*}.tex"
 TEMPLATE_HOME="${HOME}/.latex-gnuplot/${template}"
-TEMPLATE_SHARE="/usr/local/share/latex-gnuplot/${template}"
+TEMPLATE_PREFIX="${PREFIX}/share/latex-gnuplot/${template}"
+TEMPLATE_LOCAL="/usr/local/share/latex-gnuplot/${template}"
+TEMPLATE_USR="/usr/share/latex-gnuplot/${template}"
 
 if [ ! -f $template ]; then
     if [ ! -f $TEMPLATE_HOME ]; then
-        if [ ! -f $TEMPLATE_SHARE ]; then
-            echo "$0: Template file '$template' not found." >&2
-            exit 5
+        if [ ! -f $TEMPLATE_PREFIX ]; then
+            if [ ! -f $TEMPLATE_LOCAL ]; then
+                if [ ! -f $TEMPLATE_USR ]; then
+                    echo "$0: Template file '$template' not found." >&2
+                    exit 5
+                else
+                    template=$TEMPLATE_USR
+                fi
+            else
+                template=$TEMPLATE_LOCAL
+            fi
         else
-            template=$TEMPLATE_SHARE
+            template=$TEMPLATE_PREFIX
         fi
     else
         template=$TEMPLATE_HOME

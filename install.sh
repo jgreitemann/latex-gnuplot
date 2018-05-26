@@ -70,7 +70,7 @@ while true; do
 done
 
 if [ ! -d $prefix ]; then
-    echo "$0: prefix directory '$prefix' do not exist." 2>&1
+    echo "$0: prefix directory '$prefix' does not exist." 2>&1
     exit 1
 fi
 
@@ -80,10 +80,14 @@ if [ "$action" == "install" ]; then
         pandoc -s -t man doc/man-page.md -o latex-gnuplot.1
     fi
     echo "Installing..."
+    sed -r "s/^PREFIX=.+$/PREFIX=$(echo $prefix | sed 's/\//\\\//g')/g" latex-gnuplot.sh > latex-gnuplot
     mkdir -vp ${prefix}/bin
-    install -v --mode=755 latex-gnuplot.sh ${prefix}/bin/latex-gnuplot
-    if [ -f latex-gnuplot.1 ]; then
-        install -v latex-gnuplot.1 ${prefix}/share/man/man1/latex-gnuplot.1
+    install -v --mode=755 latex-gnuplot ${prefix}/bin
+    mkdir -vp ${prefix}/share/latex-gnuplot
+    install -v templates/*.tex ${prefix}/share/latex-gnuplot
+    if [ -f latex-gnuplot.1 ] && [ -d ${prefix}/share/man ]; then
+        mkdir -vp ${prefix}/share/man/man1
+        install -v latex-gnuplot.1 ${prefix}/share/man/man1
         mandb
     fi
 fi
@@ -91,5 +95,7 @@ fi
 if [ "$action" == "uninstall" ]; then
     echo "Uninstalling..."
     rm -vf ${prefix}/bin/latex-gnuplot
+    rm -vrf ${prefix}/share/latex-gnuplot
     rm -vf ${prefix}/share/man/man1/latex-gnuplot.1
+    mandb
 fi

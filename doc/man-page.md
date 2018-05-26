@@ -80,7 +80,12 @@ The template files are looked up from a hierarchy of directories in the
 following order:
 
 * `$HOME/.latex-gnuplot/`
+* `$PREFIX/share/latex-gnuplot/`
 * `/usr/local/share/latex-gnuplot/`
+* `/usr/share/latex-gnuplot/`
+
+where `$PREFIX` is the install prefix that was set by passing the `--prefix`
+option to the `install.sh` script.
 
 For example, the default template is named `article`; specifying this
 (`--template article`) will invoke the file `article.tex` which is installed to
