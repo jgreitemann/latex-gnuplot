@@ -60,8 +60,8 @@ if [[ $? -ne 4 ]]; then
     exit 1
 fi
 
-OPTIONS=ept:P:i:h
-LONGOPTIONS=eps,pdf,eps-from-pdf,template:,preamble:,inject:,no-cleanup,help
+OPTIONS=epE:t:P:i:h
+LONGOPTIONS=eps,pdf,engine:,template:,preamble:,inject:,no-cleanup,help
 
 # -temporarily store output to be able to check for errors
 # -e.g. use “--options” parameter by name to activate quoting/enhanced mode
@@ -77,6 +77,7 @@ eval set -- "$PARSED"
 
 # default values
 format=eps
+engine="default"
 template=article
 nc=0
 
@@ -91,9 +92,9 @@ while true; do
             format=pdf
             shift
             ;;
-        --eps-from-pdf)
-            format=eps-from-pdf
-            shift
+        -E|--engine)
+            engine="$2"
+            shift 2
             ;;
         -t|--template)
             template="$2"
@@ -126,6 +127,8 @@ while true; do
     esac
 done
 
+# Load the template
+
 template="${template%.*}.tex"
 TEMPLATE_HOME="${HOME}/.latex-gnuplot/${template}"
 TEMPLATE_PREFIX="${PREFIX}/share/latex-gnuplot/${template}"
@@ -153,6 +156,8 @@ if [ ! -f $template ]; then
     fi
 fi
 
+# Set up temporary working directory
+
 OLDPWD=$PWD
 TMPDIR=`mktemp -d --tmpdir latex-gnuplot_XXXXXXXX`
 TEX=`mktemp --tmpdir=$TMPDIR XXXXXX_$(basename $template)`
@@ -166,6 +171,8 @@ GP=$1
 cp $GP $TMPDIR
 shift
 
+# Copy data files to temp dir
+
 while [[ $# -gt 0 ]]; do
     if [[ ! -e $1 ]]; then
         echo "$0: data file '$1' not found, skipping..."
@@ -174,6 +181,8 @@ while [[ $# -gt 0 ]]; do
     fi
     shift
 done
+
+# Prepare tex file
 
 {
     sed '/THEPREAMBLE/,$d' $template
@@ -188,8 +197,24 @@ done
         | sed "s/THEINJECTION/${injection}/g"
 } > $TEX
 
+# Identify engine
+
+enginecmd=$({
+    if [ -z "$engine" ]; then
+        sed -nr 's/%\s*TeX-engine:\s*([^\w]+)/\1/p' $TEX
+    else
+        echo $engine
+    fi
+} | sed -r 's/^default$/pdftex/g' | sed -r 's/(la)?tex$/latex/g')
+
+command -v $enginecmd > /dev/null 2>&1 || {
+    echo "$0: Engine command '$enginecmd' not available" >&2
+    exit 7
+}
+
+# Run gnuplot
+
 GP=$(basename $GP)
-RES=${GP%.*}.eps
 
 pushd $TMPDIR
 
@@ -199,22 +224,42 @@ echo -e "\nshow output" \
 cat output.log
 OUTPUT=`grep "output is sent to" output.log | sed -r "s/output is sent to '(.+)'/\\1/g" | xargs`
 
+# Run TeX
+
 sed -i "s/THEFILENAME/${OUTPUT}/g" $TEX
+command $enginecmd $TEX
+
+# Convert and copy
+TEX=$(basename $TEX)
+DVI=${TEX%.*}.dvi
+EPS=${TEX%.*}.eps
+PDF=${TEX%.*}.pdf
 
 case "$format" in
     "eps")
-        latex $TEX
-        dvips -E -o res.eps ${TEX%.*}.dvi
-        mv res.eps $OLDPWD/${GP%.*}.eps
+        if [ -e "$DVI" ]; then
+            dvips -E -o $EPS $DVI
+        elif [ -e "$PDF" ]; then
+            pdftops -eps $PDF
+        else
+            echo "$0: EPS output: no input format to convert from" 2>&1
+            exit 8
+        fi
+        mv $EPS $OLDPWD/${GP%.*}.eps
         ;;
     "pdf")
-        pdflatex $TEX
-        mv ${TEX%.*}.pdf $OLDPWD/${GP%.*}.pdf
-        ;;
-    "eps-from-pdf")
-        pdflatex $TEX
-        pdftops -eps ${TEX%.*}.pdf
-        mv ${TEX%.*}.eps $OLDPWD/${GP%.*}.eps
+        if [ ! -e "$PDF" ]; then
+            if [ ! -e "$EPS" ] && [ -e "$DVI" ]; then
+                dvips -E -o $EPS $DVI
+            fi
+            if [ -e "$EPS" ]; then
+                epstopdf $EPS
+            else
+                echo "$0: PDF output: no input format to convert from" 2>&1
+                exit 8
+            fi
+        fi
+        mv $PDF $OLDPWD/${GP%.*}.pdf
         ;;
     *)
         echo "$0: unrecognized format: '$format'." >&2
