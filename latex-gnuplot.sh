@@ -76,7 +76,7 @@ fi
 eval set -- "$PARSED"
 
 # default values
-format=eps
+formats=""
 engine="default"
 template=article
 nc=0
@@ -85,11 +85,11 @@ nc=0
 while true; do
     case "$1" in
         -e|--eps)
-            format=eps
+            formats+=" eps"
             shift
             ;;
         -p|--pdf)
-            format=pdf
+            formats+=" pdf"
             shift
             ;;
         -E|--engine)
@@ -235,37 +235,47 @@ DVI=${TEX%.*}.dvi
 EPS=${TEX%.*}.eps
 PDF=${TEX%.*}.pdf
 
-case "$format" in
-    "eps")
+function get_eps {
+    if [ ! -e "$EPS" ]; then
         if [ -e "$DVI" ]; then
             dvips -E -o $EPS $DVI
         elif [ -e "$PDF" ]; then
             pdftops -eps $PDF
         else
-            echo "$0: EPS output: no input format to convert from" 2>&1
+            echo "$0: EPS output: no input format to convert from" >&2
             exit 8
         fi
-        mv $EPS $OLDPWD/${GP%.*}.eps
-        ;;
-    "pdf")
-        if [ ! -e "$PDF" ]; then
-            if [ ! -e "$EPS" ] && [ -e "$DVI" ]; then
-                dvips -E -o $EPS $DVI
-            fi
-            if [ -e "$EPS" ]; then
-                epstopdf $EPS
-            else
-                echo "$0: PDF output: no input format to convert from" 2>&1
-                exit 8
-            fi
+    fi
+}
+
+function get_pdf {
+    if [ ! -e "$PDF" ]; then
+        get_eps
+        if [ -e "$EPS" ]; then
+            epstopdf $EPS
+        else
+            echo "$0: PDF output: no input format to convert from" >&2
+            exit 8
         fi
-        mv $PDF $OLDPWD/${GP%.*}.pdf
-        ;;
-    *)
-        echo "$0: unrecognized format: '$format'." >&2
-        exit 6
-        ;;
-esac
+    fi
+}
+
+for format in $formats; do
+    case "$format" in
+        "eps")
+            get_eps
+            cp $EPS $OLDPWD/${GP%.*}.eps
+            ;;
+        "pdf")
+            get_pdf
+            cp $PDF $OLDPWD/${GP%.*}.pdf
+            ;;
+        *)
+            echo "$0: unrecognized format: '$format'." >&2
+            exit 6
+            ;;
+    esac
+done
 
 popd
 
