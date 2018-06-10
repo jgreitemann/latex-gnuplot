@@ -60,8 +60,8 @@ if [[ $? -ne 4 ]]; then
     exit 1
 fi
 
-OPTIONS=epE:t:P:i:h
-LONGOPTIONS=eps,pdf,engine:,template:,preamble:,inject:,no-cleanup,help
+OPTIONS=epsE:t:P:i:h
+LONGOPTIONS=eps,pdf,svg,engine:,template:,preamble:,inject:,no-cleanup,help
 
 # -temporarily store output to be able to check for errors
 # -e.g. use “--options” parameter by name to activate quoting/enhanced mode
@@ -90,6 +90,10 @@ while true; do
             ;;
         -p|--pdf)
             formats+=" pdf"
+            shift
+            ;;
+        -s|--svg)
+            formats+=" svg"
             shift
             ;;
         -E|--engine)
@@ -234,6 +238,7 @@ TEX=$(basename $TEX)
 DVI=${TEX%.*}.dvi
 EPS=${TEX%.*}.eps
 PDF=${TEX%.*}.pdf
+SVG=${TEX%.*}.svg
 
 function get_eps {
     if [ ! -e "$EPS" ]; then
@@ -260,6 +265,21 @@ function get_pdf {
     fi
 }
 
+function get_svg {
+    if [ ! -e "$SVG" ]; then
+        if [ ! -e "$PDF" ]; then
+            get_pdf
+        fi
+        if [ -e "$PDF" ]; then
+            command -v pdftocairo > /dev/null 2>&1 || {
+                echo "$0: 'pdftocairo' needs to be installed for SVG output" >&2
+                exit 9
+            }
+            pdftocairo -svg $PDF $SVG
+        fi
+    fi
+}
+
 for format in $formats; do
     case "$format" in
         "eps")
@@ -269,6 +289,10 @@ for format in $formats; do
         "pdf")
             get_pdf
             cp $PDF $OLDPWD/${GP%.*}.pdf
+            ;;
+        "svg")
+            get_svg
+            cp $SVG $OLDPWD/${GP%.*}.svg
             ;;
         *)
             echo "$0: unrecognized format: '$format'." >&2
