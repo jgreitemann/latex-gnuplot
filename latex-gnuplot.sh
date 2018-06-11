@@ -60,8 +60,8 @@ if [[ $? -ne 4 ]]; then
     exit 1
 fi
 
-OPTIONS=epsE:t:P:i:h
-LONGOPTIONS=eps,pdf,svg,engine:,template:,preamble:,inject:,no-cleanup,help
+OPTIONS=epszE:t:P:i:h
+LONGOPTIONS=eps,pdf,svg,svgz,engine:,template:,preamble:,inject:,no-cleanup,help
 
 # -temporarily store output to be able to check for errors
 # -e.g. use “--options” parameter by name to activate quoting/enhanced mode
@@ -94,6 +94,10 @@ while true; do
             ;;
         -s|--svg)
             formats+=" svg"
+            shift
+            ;;
+        -z|--svgz)
+            formats+=" svgz"
             shift
             ;;
         -E|--engine)
@@ -239,6 +243,7 @@ DVI=${TEX%.*}.dvi
 EPS=${TEX%.*}.eps
 PDF=${TEX%.*}.pdf
 SVG=${TEX%.*}.svg
+SVGZ=${TEX%.*}.svgz
 
 function get_eps {
     if [ ! -e "$EPS" ]; then
@@ -293,6 +298,11 @@ for format in $formats; do
         "svg")
             get_svg
             cp $SVG $OLDPWD/${GP%.*}.svg
+            ;;
+        "svgz")
+            get_svg
+            gzip -c $SVG > $SVGZ
+            cp $SVGZ $OLDPWD/${GP%.*}.svgz
             ;;
         *)
             echo "$0: unrecognized format: '$format'." >&2
