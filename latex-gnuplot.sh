@@ -77,7 +77,7 @@ eval set -- "$PARSED"
 
 # default values
 formats=""
-engine="default"
+engine=""
 template=article
 nc=0
 
@@ -207,13 +207,19 @@ done
 
 # Identify engine
 
-enginecmd=$({
+engine=$(
     if [ -z "$engine" ]; then
         sed -nr 's/%\s*TeX-engine:\s*([^\w]+)/\1/p' $TEX
     else
         echo $engine
-    fi
-} | sed -r 's/^default$/pdftex/g' | sed -r 's/(la)?tex$/latex/g')
+    fi)
+
+enginecmd=$(
+    if [ -z "$engine" ]; then
+        echo 'default'
+    else
+        echo $engine
+    fi | sed -r 's/^default$/pdftex/g' | sed -r 's/(la)?tex$/latex/g')
 
 command -v $enginecmd > /dev/null 2>&1 || {
     echo "$0: Engine command '$enginecmd' not available" >&2
