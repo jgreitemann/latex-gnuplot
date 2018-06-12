@@ -75,7 +75,7 @@ if [ ! -d $prefix ]; then
 fi
 
 if [ "$action" == "install" ]; then
-    if [[ $gen_man -gt 0 ]]; then
+    command -v pandoc > /dev/null 2>&1 && if [[ $gen_man -gt 0 ]]; then
         echo "Generating man page..."
         pandoc -s -t man doc/man-page.md -o latex-gnuplot.1
     fi
