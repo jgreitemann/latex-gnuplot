@@ -65,13 +65,13 @@ command provided by the `xcolor` package. To that end, we add a file
 
 Then, in order to create the plot shown below, we run
 
-    $ latex-gnuplot --pdf --svgz -P preamble.tex photo_luminescense.gp *.dat
+    $ latex-gnuplot --pdf --svg -P preamble.tex photo_luminescense.gp *.dat
 
-Note that we specify both [PDF][3] and [SVGZ][4] output, enter the preamble, and
+Note that we specify both [PDF][3] and [SVG][4] output, enter the preamble, and
 list the gnuplot script and **all the data files** (expanded by the shell from a
 *glob pattern*).
 
-![The SVGZ output][4]
+![The SVG output][4]
 
 If we deemed the font size too large, we could also *inject* a TeX command to
 change it without touching any of the input files by adding the flag
@@ -152,5 +152,5 @@ this program. If not, see <http://www.gnu.org/licenses/>.
 [1]: example/photo_luminescense.gp
 [2]: http://www.gnuplotting.org/label-size-in-epslatex-terminal/
 [3]: doc/photo_luminescense.pdf
-[4]: doc/photo_luminescense.svgz
+[4]: doc/photo_luminescense.svg
 [5]: doc/man-page.md
