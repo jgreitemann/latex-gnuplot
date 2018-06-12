@@ -41,10 +41,11 @@ USAGE:
     $(usage)
 
 OPTIONS:
-    -e, --eps                     Specify \`latex\` + \`dvips\` as typeset commands
-    -p, --pdf                     Specify \`pdflatex\` as typeset command
-        --eps-from-pdf            Specify \`pdflatex\` as typeset command, but
-                                  convert subsequently with \`pdftops\` to EPS
+    -E, --engine ENGINE           Select LaTeX engine, overriding template defaults
+    -e, --eps                     Generate EPS output
+    -p, --pdf                     Generate PDF output
+    -s, --svg                     Generate SVG output
+    -z, --svgz                    Generate gzipped SVG output
     -t, --template TEMPLATE       Specify the name of an installed template file
     -P, --preamble PREAMBLE-FILE  Specify path to an optional preamble file
     -i, --inject INJECTION        Specify LaTeX commands to put immediately

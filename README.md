@@ -4,16 +4,18 @@ latex-gnuplot
 `latex-gnuplot` takes a gnuplot script which outputs to a LaTeX terminal
 (`epslatex`, `pdflatex`, `cairolatex`, ...), runs *gnuplot*, embeds the
 resulting `.tex` file containing the title, axis labels, etc., into a predefined
-LaTeX template, and finally runs either `latex` + `dvips` or `pdflatex` to
-obtain an output file.
+LaTeX template, and finally runs a LaTeX engine and subsequent conversions to
+the desired output format.
 
 Typical usage scenarios include submissions to journals (e.g. APS journals)
 which require figures to be submitted in a self-contained format, i.e. as a
-standalone file (`eps`, `pdf`) including all axis labels, keys, and titles.
+standalone file (e.g. *eps*) including all axis labels, keys, and titles.
 `latex-gnuplot` allows you to comply with this constraint whilst still
 benefitting from LaTeX typesetting for mathematical formulae. Using an
 appropriate preamble file (see below), the type in the figure can be made to
 look exactly as in the main LaTeX document, as though it was `\input` directly.
+Another possible use case lies in the generation of SVG figures for seamless
+embedding on the web while preserving vector graphics.
 
 Before either *gnuplot* or LaTeX are invoked, the *input-gnuplot-file* and any
 optional *data-file*s are copied in a temporary directory to not pollute the
@@ -61,24 +63,41 @@ command provided by the `xcolor` package. To that end, we add a file
 % ...
 ```
 
-Then, in order to create the plot [`photo_luminescense.pdf`][3], shown below, we
-run
+Then, in order to create the plot shown below, we run
 
-    $ latex-gnuplot --pdf -P preamble.tex photo_luminescense.gp *.dat
+    $ latex-gnuplot --pdf --svgz -P preamble.tex photo_luminescense.gp *.dat
 
-Note that we specify PDF output, enter the preamble, and list the gnuplot script
-and **all the data files** (expanded by the shell from a *glob pattern*).
+Note that we specify both [PDF][3] and [SVGZ][4] output, enter the preamble, and
+list the gnuplot script and **all the data files** (expanded by the shell from a
+*glob pattern*).
 
-
-<object data="doc/photo_luminescense.pdf" type="application/pdf" width="533" height="414">
-  <img src="doc/photo_luminescense.png" style="border:1px solid black;" />
-</object>
+![The SVGZ output][4]
 
 If we deemed the font size too large, we could also *inject* a TeX command to
 change it without touching any of the input files by adding the flag
 `--inject '\\small'`. Note that backslashs need to be escaped.
 
-A full list of options is documented in the [man page][4].
+A full list of options is documented in the [man page][5].
+
+LaTeX engine
+------------
+
+The `--engine` flag can be used to specify the LaTeX engine used to typeset the
+figure. The possible engines are not contraint by this script. Any command like
+`latex`, `pdflatex`, `xelatex`, ... is a valid choice as long as it produces
+native DVI or PDF output.
+
+Since some templates require certain engines to be typeset properly, templates
+(see below) may include a comment of the form:
+
+    % TeX-engine: xelatex
+
+This follows the conventions of the Emacs AUCTeX mode. If the `-la-` token is
+omitted (e.g. `xetex`) it will be inserted automatically. Explicit specification
+of the `--engine` flag will override this preset.
+
+If neither `--engine` is specified, nor a template preset is defined, (or the
+engine token was set to *default*), *`pdflatex`* will be used as the engine.
 
 Templates
 ---------
@@ -133,4 +152,5 @@ this program. If not, see <http://www.gnu.org/licenses/>.
 [1]: example/photo_luminescense.gp
 [2]: http://www.gnuplotting.org/label-size-in-epslatex-terminal/
 [3]: doc/photo_luminescense.pdf
-[4]: doc/man-page.md
+[4]: doc/photo_luminescense.svgz
+[5]: doc/man-page.md
