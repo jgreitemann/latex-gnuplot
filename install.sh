@@ -24,7 +24,7 @@ if [[ $? -ne 4 ]]; then
 fi
 
 OPTIONS=u
-LONGOPTIONS=uninstall,prefix:
+LONGOPTIONS=uninstall,prefix:,skip-man
 
 # -temporarily store output to be able to check for errors
 # -e.g. use “--options” parameter by name to activate quoting/enhanced mode
