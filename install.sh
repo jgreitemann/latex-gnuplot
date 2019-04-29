@@ -70,7 +70,7 @@ while true; do
 done
 
 if [ ! -d $prefix ]; then
-    echo "$0: prefix directory '$prefix' does not exist." 2>&1
+    echo "$0: prefix directory '$prefix' does not exist." >&2
     exit 1
 fi
 
