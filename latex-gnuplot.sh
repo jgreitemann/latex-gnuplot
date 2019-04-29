@@ -186,7 +186,7 @@ while [[ $# -gt 0 ]]; do
     if [[ ! -e $1 ]]; then
         echo "$0: data file '$1' not found, skipping..."
     else
-        cp -r $1 $TMPDIR
+        cp -r -L $1 $TMPDIR
     fi
     shift
 done
